@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>文档转换服务</title>
+    <style>
+      :root { font-family: Arial, sans-serif; }
+      body {
+        margin: 0;
+        background: #f5f7fb;
+        display: grid;
+        min-height: 100vh;
+        place-items: center;
+      }
+      .card {
+        width: min(90vw, 520px);
+        background: #fff;
+        border-radius: 14px;
+        box-shadow: 0 8px 24px rgba(16, 24, 40, 0.1);
+        padding: 24px;
+      }
+      h1 { margin-top: 0; font-size: 24px; }
+      form { display: grid; gap: 14px; }
+      input, select, button {
+        padding: 10px 12px;
+        border-radius: 8px;
+        border: 1px solid #d0d5dd;
+        font-size: 14px;
+      }
+      button {
+        border: none;
+        background: #2563eb;
+        color: #fff;
+        cursor: pointer;
+      }
+      button:hover { background: #1d4ed8; }
+      .help { color: #475467; font-size: 13px; }
+    </style>
+  </head>
+  <body>
+    <main class="card">
+      <h1>文档格式转换</h1>
+      <p class="help">支持上传 txt / md / docx / pdf，并转换为 PDF、Word 或 Markdown。</p>
+      <form action="/convert" method="post" enctype="multipart/form-data">
+        <label>
+          上传文档
+          <input type="file" name="file" required />
+        </label>
+
+        <label>
+          目标格式
+          <select name="target" required>
+            <option value="pdf">PDF (.pdf)</option>
+            <option value="word">Word (.docx)</option>
+            <option value="markdown">Markdown (.md)</option>
+          </select>
+        </label>
+
+        <button type="submit">开始转换并下载</button>
+      </form>
+    </main>
+  </body>
+</html>
