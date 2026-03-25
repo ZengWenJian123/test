@@ -1,4 +1,7 @@
-import io
+from pathlib import Path
+import sys
+
+sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from app import app
 
@@ -7,16 +10,22 @@ def test_index_ok():
     client = app.test_client()
     response = client.get("/")
     assert response.status_code == 200
-    assert "文档格式转换" in response.get_data(as_text=True)
+    assert "工业 AI 智能体决策平台" in response.get_data(as_text=True)
 
 
-def test_convert_markdown_ok():
+def test_overview_ok():
     client = app.test_client()
-    data = {
-        "target": "markdown",
-        "file": (io.BytesIO("hello".encode("utf-8")), "demo.txt"),
-    }
-    response = client.post("/convert", data=data, content_type="multipart/form-data")
+    response = client.get("/api/overview")
     assert response.status_code == 200
-    assert response.headers["Content-Disposition"].startswith("attachment;")
-    assert response.data == b"hello"
+    payload = response.get_json()
+    assert payload and "orders" in payload
+    assert len(payload["orders"]) >= 1
+
+
+def test_ai_decision_ok():
+    client = app.test_client()
+    response = client.post("/api/ai/decision", json={"question": "今天排产怎么安排"})
+    assert response.status_code == 200
+    payload = response.get_json()
+    assert payload["question"] == "今天排产怎么安排"
+    assert "answer" in payload
