@@ -1,18 +1,21 @@
-# 文档格式转换服务
+# 工业 AI 智能体决策服务（Flask + SQLite + 本地大模型）
 
-一个基于 Flask 的 Web 页面服务：上传文档后可转换为 **PDF / Word / Markdown** 并直接下载。
+这是一个面向工业应用场景的一站式服务网站，聚焦：
+- 用户订单管理
+- 生产排期可视化
+- 仓库物料预警
+- 本地大模型辅助决策
 
-## 功能
+后端数据库为 **SQLite**，并支持接入本地大模型（默认兼容 Ollama API）。
 
-- 支持上传：`txt`、`md`、`docx`、`pdf`
-- 支持转换目标：
-  - PDF（`.pdf`）
-  - Word（`.docx`）
-  - Markdown（`.md`）
+## 核心能力
 
-> 当前实现以文本内容提取+重建方式转换，复杂排版（表格、图片、样式）可能丢失。
+- 首页统一展示：订单 / 排期 / 物料数据
+- `POST /api/ai/decision` 提供运营建议
+- 自动读取数据库上下文（高优先级订单、低库存物料、延期风险）
+- 本地模型不可用时自动降级为规则引擎建议
 
-## 运行方式
+## 快速启动
 
 ```bash
 python -m venv .venv
@@ -21,31 +24,30 @@ pip install -r requirements.txt
 python app.py
 ```
 
-打开 `http://127.0.0.1:5000` 即可使用。
+访问 `http://127.0.0.1:5000`。
+
+## 本地模型配置（可选）
+
+通过环境变量配置模型接入：
+
+```bash
+export LOCAL_LLM_BASE_URL=http://127.0.0.1:11434
+export LOCAL_LLM_MODEL=qwen2.5:7b
+export LOCAL_LLM_TIMEOUT=20
+```
+
+如果本地模型服务不可达，接口会返回可执行的兜底策略建议。
+
+## API
+
+- `GET /api/overview`
+  - 返回订单、排期、物料数据
+- `POST /api/ai/decision`
+  - 请求体：`{"question":"请给出排产建议"}`
+  - 返回：问题、上下文统计、AI建议
 
 ## 测试
 
 ```bash
-source .venv/bin/activate
 pytest -q
 ```
-
-## Demo（自动化演示）
-
-可直接运行脚本完成依赖安装 + 接口调用演示：
-
-```bash
-bash scripts/demo.sh
-```
-
-脚本会通过 Flask `test_client()` 执行：
-- `GET /` 首页连通性检查
-- `POST /convert` 的 txt -> markdown 转换示例
-
-## 安装失败排查
-
-如果你在受限网络环境中遇到 `pip install` 失败（例如代理 403 / 无法联网），可优先检查：
-
-1. 是否需要设置企业内部 PyPI 源（`PIP_INDEX_URL`）。
-2. 当前代理配置是否可访问 Python 包源。
-3. 证书链是否正确（如 `PIP_CERT`、`REQUESTS_CA_BUNDLE`）。
